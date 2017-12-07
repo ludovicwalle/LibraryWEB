@@ -1,9 +1,5 @@
 package toolbox.servlet;
 
-import toolbox.*;
-
-
-
 /**
  * La classe {@link MethodDescription} contient la description d'une servlet pour une méthode.
  * @author Ludovic WALLE
@@ -99,7 +95,7 @@ public class MethodDescription implements Comparable<MethodDescription> {
 	@Override public int compareTo(MethodDescription other) {
 		int compare;
 
-		for (int i = 0; i < OtherTools.min(methods.length, other.methods.length); i++) {
+		for (int i = 0; i < ((methods.length < other.methods.length) ? methods.length : other.methods.length); i++) {
 			if ((compare = methods[i].compareTo(other.methods[i])) != 0) {
 				return compare;
 			}
