@@ -1,14 +1,10 @@
 package toolbox.servlet;
 
-import javax.servlet.http.*;
-
-
-
 /**
  * La classe {@link ListParameter} implémente la description d'un paramètre de servlet dont la valeur doit faire partie d'une liste.
  * @author Ludovic WALLE
  */
-public class ListParameter extends Parameter {
+public class ListParameter extends SimpleParameter {
 
 
 
@@ -57,7 +53,7 @@ public class ListParameter extends Parameter {
 	 * Ajoute les informations sur le paramètre à la page d'aide indiquée.
 	 * @param page Page d'aide à compléter.
 	 */
-	@Override public void appendHelp(Page page) {
+	@Override protected void appendHelp(Page page) {
 		page.appendItem(getName(), getDescription());
 		page.appendListStart();
 		for (ValueAndLabel valueAndLabel : getPossibleValuesAndLabels()) {
@@ -75,7 +71,7 @@ public class ListParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public void appendInvalidValue(Page page, String value) {
+	@Override protected void appendInvalidValue(Page page, String value) {
 		page.appendSection("Erreur", "La valeur \"" + CustomizedServlet.encodeForHtml(value) + "\" du paramètre \"" + getName() + "\" ne fait pas partie de :");
 		page.appendListStart();
 		for (ValueAndLabel valueAndLabel : valuesAndLabels) {
@@ -145,7 +141,7 @@ public class ListParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public String getValue(HttpServletRequest request) {
+	@Override public String getValue(CustomizedRequest request) {
 		String value;
 
 		value = (String) super.getValue(request);
@@ -161,8 +157,17 @@ public class ListParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public String getValue(HttpServletRequest request, Object valueWhenNoParameter, Object valueWhenParameterWithoutValue) {
+	@Override public String getValue(CustomizedRequest request, String valueWhenNoParameter, String valueWhenParameterWithoutValue) {
 		return (String) super.getValue(request, valueWhenNoParameter, valueWhenParameterWithoutValue);
+	}
+
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override protected String getValue(String parameterValue) {
+		return parameterValue;
 	}
 
 
@@ -172,7 +177,7 @@ public class ListParameter extends Parameter {
 	 * @param request Données d'entrée de la servlet.
 	 * @return La valeur du paramètre si elle existe dans les données d'entrée de la servlet et est valide, <code>null</code> sinon.
 	 */
-	public ValueAndLabel getValueAndLabel(HttpServletRequest request) {
+	public ValueAndLabel getValueAndLabel(CustomizedRequest request) {
 		return getPossibleValueAndLabel((String) super.getValue(request));
 	}
 
@@ -186,7 +191,7 @@ public class ListParameter extends Parameter {
 	 * @return La valeur du paramètre si elle existe dans les données d'entrée de la servlet et est valide, la valeur indiquée par défaut sinon.
 	 * @throws RuntimeException Si le paramètre apparaît plusieurs fois.
 	 */
-	public ValueAndLabel getValueAndLabel(HttpServletRequest request, Object valueWhenNoParameter, Object valueWhenParameterWithoutValue) {
+	public ValueAndLabel getValueAndLabel(CustomizedRequest request, Object valueWhenNoParameter, Object valueWhenParameterWithoutValue) {
 		return getPossibleValueAndLabel(getValue(request, ((ValueAndLabel) valueWhenNoParameter).getValue(), ((ValueAndLabel) valueWhenParameterWithoutValue).getValue()));
 	}
 
@@ -195,11 +200,11 @@ public class ListParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public String[] getValues(HttpServletRequest request) {
+	@Override public String[] getValues(CustomizedRequest request) {
 		@SuppressWarnings("hiding") String[] values;
 
 		if ((values = request.getParameterValues(getName())) == null) {
-			return new String[0];
+			return Constants.NO_STRING;
 		} else {
 			values = values.clone();
 			for (int i = 0; i < values.length; i++) {
@@ -220,7 +225,7 @@ public class ListParameter extends Parameter {
 	 * @param request Données d'entrée de la servlet.
 	 * @return Un tableau contenant les valeurs du paramètre existantes et valides dans les données d'entrée de la servlet.
 	 */
-	public ValueAndLabel[] getValuesAndLabels(HttpServletRequest request) {
+	public ValueAndLabel[] getValuesAndLabels(CustomizedRequest request) {
 		@SuppressWarnings("hiding") String[] values;
 		@SuppressWarnings("hiding") ValueAndLabel[] valuesAndLabels;
 
@@ -422,7 +427,7 @@ public class ListParameter extends Parameter {
 	 * @return <code>true</code> si la valeur indiquée est sélectionnée, <code>false</code> sinon.
 	 * @throws RuntimeException Si la valeur indiquée ne fait pas partie des valeurs autorisées.
 	 */
-	public boolean isSelected(HttpServletRequest request, String value) {
+	public boolean isSelected(CustomizedRequest request, String value) {
 		ValueAndLabel valueAndLabel;
 
 		if ((valueAndLabel = getPossibleValueAndLabel(value)) == null) {
@@ -440,7 +445,7 @@ public class ListParameter extends Parameter {
 	 * @param valueAndLabel Valeur à tester.
 	 * @return <code>true</code> si la valeur indiquée est sélectionnée, <code>false</code> sinon.
 	 */
-	public boolean isSelected(HttpServletRequest request, ValueAndLabel valueAndLabel) {
+	public boolean isSelected(CustomizedRequest request, ValueAndLabel valueAndLabel) {
 		String[] selectedValues = request.getParameterValues(getName());
 
 		if (selectedValues == null) {

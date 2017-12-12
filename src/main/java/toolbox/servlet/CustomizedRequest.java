@@ -32,15 +32,14 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 	public CustomizedRequest(HttpServletRequest request) throws IOException {
 		super(request);
 
-		Map<String, Vector<String>> map = new HashMap<>();
 		Vector<String> strings;
-		Vector<FilePart> parts;
-		String name;
+		@SuppressWarnings("hiding") Map<String, Vector<String>> stringsMap = new HashMap<>();
+		@SuppressWarnings("hiding") Map<String, Vector<FilePart>> filesMap = new HashMap<>();
+		@SuppressWarnings("hiding") Set<String> names = new HashSet<>();
 
-		this.attachmentsMap = new HashMap<>();
 		if (ServletFileUpload.isMultipartContent(request)) {
 			for (Entry<String, String[]> entry : super.getParameterMap().entrySet()) {
-				map.put(entry.getKey(), strings = new Vector<>());
+				stringsMap.put(entry.getKey(), strings = new Vector<>());
 				for (String string : entry.getValue()) {
 					strings.add(string);
 				}
@@ -48,69 +47,35 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 			try {
 				for (FileItem item : new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request)) {
 					if (item.isFormField()) {
-						if (!map.containsKey(item.getFieldName())) {
-							map.put(item.getFieldName(), new Vector<String>());
+						if (!stringsMap.containsKey(item.getFieldName())) {
+							stringsMap.put(item.getFieldName(), new Vector<String>());
 						}
-						map.get(item.getFieldName()).add(item.getString());
+						stringsMap.get(item.getFieldName()).add(item.getString());
 					} else {
-						this.attachmentsMap.put(item.getName(), new FilePart(item));
+						if (!filesMap.containsKey(item.getFieldName())) {
+							filesMap.put(item.getFieldName(), new Vector<FilePart>());
+						}
+						filesMap.get(item.getFieldName()).add(new FilePart(item));
 					}
 				}
 			} catch (FileUploadException exception) {
 				throw new IOException(exception);
 			}
-			this.valuesMap = new HashMap<>(map.size());
-			for (Entry<String, Vector<String>> entry : map.entrySet()) {
-				this.valuesMap.put(entry.getKey(), entry.getValue().toArray(new String[entry.getValue().size()]));
+			this.stringsMap = new HashMap<>(stringsMap.size());
+			for (Entry<String, Vector<String>> entry : stringsMap.entrySet()) {
+				this.stringsMap.put(entry.getKey(), entry.getValue().toArray(new String[entry.getValue().size()]));
+			}
+			this.filesMap = new HashMap<>(filesMap.size());
+			for (Entry<String, Vector<FilePart>> entry : filesMap.entrySet()) {
+				this.filesMap.put(entry.getKey(), entry.getValue().toArray(new FilePart[entry.getValue().size()]));
 			}
 		} else {
-			this.valuesMap = super.getParameterMap();
+			this.stringsMap = super.getParameterMap();
+			this.filesMap = new HashMap<>();
 		}
-		this.names = this.valuesMap.keySet().toArray(new String[this.valuesMap.size()]);
-		if (request.getCharacterEncoding() == null) {
-			/* Heuristique: les paramètres qui arrivent pourraient être considérés comme encodés en Windows-1252 alors qu'ils le seraient en UTF-8 => corriger si ça ne provoque pas d'erreur d'encodage */
-			boolean possible = true;
-
-			for (String[] values : this.valuesMap.values()) {
-				for (String value : values) {
-					if (!value.contains("\u00EF\u00BF\u00BD") && (new String(value.getBytes("ISO-8859-1"), "UTF-8").indexOf('\uFFFD') != -1)) {
-						possible = false;
-					}
-				}
-			}
-			for (FilePart part : this.attachmentsMap.values()) {
-				if (!part.getName().contains("\u00EF\u00BF\u00BD") && (new String(part.getName().getBytes("ISO-8859-1"), "UTF-8").indexOf('\uFFFD') != -1)) {
-					possible = false;
-				}
-			}
-			if (possible) {
-				for (String[] values : this.valuesMap.values()) {
-					for (int i = 0; i < values.length; i++) {
-						values[i] = new String(values[i].getBytes("ISO-8859-1"), "UTF-8");
-					}
-				}
-				parts = new Vector<>();
-				parts.addAll(this.attachmentsMap.values());
-				this.attachmentsMap.clear();
-				for (FilePart part : parts) {
-					name = new String(part.getName().getBytes("ISO-8859-1"), "UTF-8");
-					this.attachmentsMap.put(name, new FilePart(part, name));
-				}
-			}
-		}
-	}
-
-
-
-	/**
-	 * Retourne l'unique fichier attaché, ou <code>null</code> si il n'y en a pas.
-	 * @return L'unique fichier attaché, ou <code>null</code> si il n'y en a pas.
-	 */
-	public FilePart getFilePart() {
-		if (attachmentsMap.size() > 1) {
-			throw new RuntimeException("Il y a plus d'un fichier attaché.");
-		}
-		return attachmentsMap.values().iterator().next();
+		names.addAll(stringsMap.keySet());
+		names.addAll(filesMap.keySet());
+		this.names = names.toArray(new String[names.size()]);
 	}
 
 
@@ -119,8 +84,41 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 	 * Retourne une collection contenant les fichiers attachés.
 	 * @return Une collection contenant les fichiers attachés.
 	 */
-	public Collection<FilePart> getFileParts() {
-		return attachmentsMap.values();
+	public Map<String, FilePart[]> getFileMap() {
+		return filesMap;
+	}
+
+
+
+	/**
+	 * Retourne l'unique fichier, ou <code>null</code> si il n'y en a pas.
+	 * @param name Nom du paramètre.
+	 * @return L'unique fichier, ou <code>null</code> si il n'y en a pas.
+	 * @throw {@link RuntimeException} si il y a plusieurs fichiers.
+	 */
+	public FilePart getFilePart(String name) {
+		if (!filesMap.containsKey(name) || (filesMap.get(name).length == 0)) {
+			return null;
+		} else if (filesMap.get(name).length == 1) {
+			return filesMap.get(name)[0];
+		} else {
+			throw new RuntimeException("Il y a plus d'un fichier pour le paramètre \"" + name + "\".");
+		}
+	}
+
+
+
+	/**
+	 * Retourne une collection contenant les fichiers attachés.
+	 * @param name Nom du paramètre.
+	 * @return Une collection contenant les fichiers attachés.
+	 */
+	public FilePart[] getFileParts(String name) {
+		if (filesMap.containsKey(name)) {
+			return filesMap.get(name);
+		} else {
+			return Constants.NO_FILE;
+		}
 	}
 
 
@@ -131,7 +129,7 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 	@Override public String getParameter(String name) {
 		String[] values;
 
-		if ((values = valuesMap.get(name)) == null) {
+		if ((values = stringsMap.get(name)) == null) {
 			return null;
 		} else {
 			return values[0];
@@ -143,9 +141,8 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 	/**
 	 * {@inheritDoc}
 	 */
-
 	@Override public Map<String, String[]> getParameterMap() {
-		return valuesMap;
+		return stringsMap;
 	}
 
 
@@ -153,9 +150,26 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 	/**
 	 * {@inheritDoc}
 	 */
-
 	@Override public Enumeration<String> getParameterNames() {
 		return new ArrayEnumeration<>(names);
+	}
+
+
+
+	/**
+	 * Retourne l'unique valeur du paramètre, ou <code>null</code> si il n'y en a pas.
+	 * @param name Nom du paramètre.
+	 * @return L'unique valeur du paramètre, ou <code>null</code> si il n'y en a pas.
+	 * @throw {@link RuntimeException} si il y a plusieurs valeurs.
+	 */
+	public String getParameterValue(String name) {
+		if (!stringsMap.containsKey(name) || (stringsMap.get(name).length == 0)) {
+			return null;
+		} else if (stringsMap.get(name).length == 1) {
+			return stringsMap.get(name)[0];
+		} else {
+			throw new RuntimeException("Il y a plus d'une valeur pour le paramètre \"" + name + "\".");
+		}
 	}
 
 
@@ -165,26 +179,7 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 	 */
 
 	@Override public String[] getParameterValues(String name) {
-		return valuesMap.get(name);
-	}
-
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override public FilePart getPart(String name) {
-		return attachmentsMap.get(name);
-	}
-
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unused")
-	@Override public Collection<Part> getParts() {
-		return new Vector<Part>(attachmentsMap.values());
+		return stringsMap.get(name);
 	}
 
 
@@ -194,7 +189,7 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 	 * La valeur est calculée d'après les paramètres.
 	 */
 	@Override public String getQueryString() {
-		return computeQueryString(valuesMap);
+		return computeQueryString(stringsMap);
 	}
 
 
@@ -233,9 +228,9 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 
 
 	/**
-	 * Attachements.
+	 * Fichiers par nom de paramètre.
 	 */
-	private final Map<String, FilePart> attachmentsMap;
+	private final Map<String, FilePart[]> filesMap;
 
 
 
@@ -249,7 +244,7 @@ public class CustomizedRequest extends HttpServletRequestWrapper {
 	/**
 	 * Valeurs des paramètres de la servlet.
 	 */
-	private final Map<String, String[]> valuesMap;
+	private final Map<String, String[]> stringsMap;
 
 
 

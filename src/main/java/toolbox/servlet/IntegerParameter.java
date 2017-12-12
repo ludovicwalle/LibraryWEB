@@ -1,14 +1,10 @@
 package toolbox.servlet;
 
-import javax.servlet.http.*;
-
-
-
 /**
  * La classe {@link IntegerParameter} implémente la description d'un paramètre de servlet dont la valeur est un entier.
  * @author Ludovic WALLE
  */
-public class IntegerParameter extends Parameter {
+public class IntegerParameter extends SimpleParameter {
 
 
 
@@ -46,7 +42,7 @@ public class IntegerParameter extends Parameter {
 	 * Ajoute les informations sur le paramètre à la page d'aide indiquée.
 	 * @param page Page d'aide à compléter.
 	 */
-	@Override public void appendHelp(Page page) {
+	@Override protected void appendHelp(Page page) {
 		page.appendItem(getName(), getDescription(), validRange());
 	}
 
@@ -55,7 +51,7 @@ public class IntegerParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public void appendInvalidValue(Page page, String value) {
+	@Override protected void appendInvalidValue(Page page, String value) {
 		page.appendSection("Erreur", "La valeur \"" + CustomizedServlet.encodeForHtml(value) + "\" du paramètre \"" + getName() + "\" n'est pas un entier compris entre " + min + " et " + max + ".");
 	}
 
@@ -114,7 +110,7 @@ public class IntegerParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Integer getValue(HttpServletRequest request) {
+	@Override public Integer getValue(CustomizedRequest request) {
 		return (Integer) super.getValue(request);
 	}
 
@@ -123,7 +119,7 @@ public class IntegerParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Integer getValue(HttpServletRequest request, Object valueWhenNoParameter, Object valueWhenParameterWithoutValue) {
+	@Override public Integer getValue(CustomizedRequest request, String valueWhenNoParameter, String valueWhenParameterWithoutValue) {
 		return (Integer) super.getValue(request, valueWhenNoParameter, valueWhenParameterWithoutValue);
 	}
 
@@ -132,7 +128,7 @@ public class IntegerParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Integer getValue(String parameterValue) {
+	@Override protected Integer getValue(String parameterValue) {
 		int value;
 
 		try {
@@ -150,7 +146,7 @@ public class IntegerParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Integer[] getValues(HttpServletRequest request) {
+	@Override public Integer[] getValues(CustomizedRequest request) {
 		String[] strings;
 		Integer[] integers;
 

@@ -1,14 +1,10 @@
 package toolbox.servlet;
 
-import javax.servlet.http.*;
-
-
-
 /**
  * La classe {@link TextParameter} implémente la description d'un paramètre de servlet dont la valeur est textuelle.
  * @author Ludovic WALLE
  */
-public class TextParameter extends Parameter {
+public class TextParameter extends SimpleParameter {
 
 
 
@@ -25,7 +21,7 @@ public class TextParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public String getValue(HttpServletRequest request) {
+	@Override public String getValue(CustomizedRequest request) {
 		return (String) super.getValue(request);
 	}
 
@@ -34,7 +30,7 @@ public class TextParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public String getValue(HttpServletRequest request, Object valueWhenNoParameter, Object valueWhenParameterWithoutValue) {
+	@Override public String getValue(CustomizedRequest request, String valueWhenNoParameter, String valueWhenParameterWithoutValue) {
 		return (String) super.getValue(request, valueWhenNoParameter, valueWhenParameterWithoutValue);
 	}
 
@@ -43,13 +39,23 @@ public class TextParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public String[] getValues(HttpServletRequest request) {
+	@Override protected String getValue(String parameterValue) {
+		return parameterValue;
+	}
+
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override public String[] getValues(CustomizedRequest request) {
 		String[] values;
 
 		if ((values = request.getParameterValues(getName())) == null) {
-			values = new String[0];
+			return Constants.NO_STRING;
+		} else {
+			return values.clone();
 		}
-		return values;
 	}
 
 

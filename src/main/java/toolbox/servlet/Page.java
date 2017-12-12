@@ -267,13 +267,45 @@ public class Page {
 
 
 	/**
-	 * Génère une page d'erreur pour paramètre invalide.
+	 * Génère une page d'erreur pour valeur de paramètre invalide (valeur chaine pour un paramètre fichier).
+	 * @param url URL d'où provient le paramètre.
+	 * @param parameter Paramètre.
+	 * @return La page d'erreur.
+	 */
+	public static Page invalidParameter(String url, FileParameter parameter) {
+		Page page;
+
+		page = new Page("Valeur de paramètre invalide", url);
+		parameter.appendIsNotAFile(page);
+		return page;
+	}
+
+
+
+	/**
+	 * Génère une page d'erreur pour valeur de paramètre invalide (valeur fichier pour un paramètre chaine).
+	 * @param url URL d'où provient le paramètre.
+	 * @param parameter Paramètre.
+	 * @return La page d'erreur.
+	 */
+	public static Page invalidParameter(String url, SimpleParameter parameter) {
+		Page page;
+
+		page = new Page("Valeur de paramètre invalide", url);
+		parameter.appendIsAFile(page);
+		return page;
+	}
+
+
+
+	/**
+	 * Génère une page d'erreur pour valeur de paramètre invalide.
 	 * @param url URL d'où provient le paramètre.
 	 * @param parameter Paramètre.
 	 * @param value Valeur invalide.
 	 * @return La page d'erreur.
 	 */
-	public static Page invalidParameter(String url, Parameter parameter, String value) {
+	public static Page invalidParameter(String url, SimpleParameter parameter, String value) {
 		Page page;
 
 		page = new Page("Valeur de paramètre invalide", url);

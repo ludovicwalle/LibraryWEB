@@ -1,14 +1,10 @@
 package toolbox.servlet;
 
-import javax.servlet.http.*;
-
-
-
 /**
  * La classe {@link BooleanParameter} implémente la description d'un paramètre de servlet dont la valeur est booléenne.
  * @author Ludovic WALLE
  */
-public class BooleanParameter extends Parameter {
+public class BooleanParameter extends SimpleParameter {
 
 
 
@@ -38,7 +34,7 @@ public class BooleanParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public void appendHelp(Page page) {
+	@Override protected void appendHelp(Page page) {
 		page.appendItem(getName(), getDescription(), "Seule la présence du paramètre compte (présent = vrai, absent = faux), la valeur est ignorée.");
 	}
 
@@ -57,7 +53,7 @@ public class BooleanParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Boolean getValue(HttpServletRequest request) {
+	@Override public Boolean getValue(CustomizedRequest request) {
 		return super.getValue(request) != null;
 	}
 
@@ -66,7 +62,7 @@ public class BooleanParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Boolean getValue(HttpServletRequest request, Object valueWhenNoParameter, Object valueWhenParameterWithoutValue) {
+	@Override public Boolean getValue(CustomizedRequest request, String valueWhenNoParameter, String valueWhenParameterWithoutValue) {
 		return (Boolean) super.getValue(request, valueWhenNoParameter, valueWhenParameterWithoutValue);
 	}
 
@@ -75,7 +71,7 @@ public class BooleanParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Boolean getValue(String parameterValue) {
+	@Override protected Boolean getValue(String parameterValue) {
 		return parameterValue != null;
 	}
 
@@ -84,13 +80,13 @@ public class BooleanParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Boolean[] getValues(HttpServletRequest request) {
+	@Override public Boolean[] getValues(CustomizedRequest request) {
 		String[] strings;
 		Boolean[] booleans;
 
 		strings = request.getParameterValues(getName());
 		if (strings == null) {
-			booleans = new Boolean[0];
+			booleans = Constants.NO_BOOLEAN;
 		} else {
 			booleans = new Boolean[strings.length];
 			for (int i = 0; i < strings.length; i++) {

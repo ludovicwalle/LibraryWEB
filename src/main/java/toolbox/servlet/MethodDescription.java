@@ -57,6 +57,9 @@ public class MethodDescription implements Comparable<MethodDescription> {
 			if (method == null) {
 				throw new RuntimeException("Méthode null pour la description: " + textualDescription);
 			}
+			if ((method != Method.POST) && (checker.getFilesParameters().length > 0)) {
+				throw new RuntimeException("La méthode " + method + " ne peut pas être utilisée pour des paramètres de type fichier.");
+			}
 		}
 		this.methods = methods.clone();
 	}

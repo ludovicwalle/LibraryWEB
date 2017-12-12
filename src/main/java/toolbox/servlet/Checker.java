@@ -13,7 +13,7 @@ import java.util.Map.*;
  * pris littéralement). Il doit y avoir un égal entre le nom du paramètre et la valeur. Exemple: MyParameter="MyValue1". Des contraintes s'appliquent aux paramètres dont la valeur est précisée: elle
  * doit avoir une valeur précisée partout où elle apparaît dans le modèle de contenu, et ne peut plus être répétitive.<br>
  * Exemple: ((A="a1"&amp;B)|(A="a2"&amp;C))<br>
- * Aucun chemin dans l'automate entre l'élément initial et un élément final ne doit comporter plusieurs fois le même nom de paramètre, qu'il soit avec un valeur ou non.
+ * Aucun chemin dans l'automate entre l'élément initial et un élément final ne doit comporter plusieurs fois le même nom de paramètre, qu'il soit avec une valeur ou non.
  * @author Ludovic WALLE
  */
 public class Checker {
@@ -53,6 +53,7 @@ public class Checker {
 		Set<Parameter> used = new HashSet<>();
 		Set<Parameter> unused;
 		StringBuilder builder = new StringBuilder();
+		Set<FileParameter> files = new HashSet<>();
 
 
 		/* ajouter l'option pour l'aide */
@@ -62,9 +63,13 @@ public class Checker {
 			if (parametersByName.put(parameter.getName(), parameter) != null) {
 				throw new RuntimeException("Le paramètre \"" + parameter.getName() + "\" apparait plusieurs fois dans la liste des paramètres.");
 			}
+			if (parameter instanceof FileParameter) {
+				files.add((FileParameter) parameter);
+			}
 		}
+		filesParameters = files.toArray(new FileParameter[files.size()]);
 		if (parametersByName.put(CustomizedServlet.HELP.getName(), CustomizedServlet.HELP) != null) {
-			throw new RuntimeException("Le paramètre \"" + CustomizedServlet.HELP.getName() + "\" apparait plusieurs fois dans la liste des paramètres.");
+			throw new RuntimeException("Le nom de paramètre \"" + CustomizedServlet.HELP.getName() + "\" est réservé.");
 		}
 		/* construire l'automate */
 		initialNode = new Node(null, null, true, false, null);
@@ -148,23 +153,24 @@ public class Checker {
 	/**
 	 * Teste si les paramètres de la servlet sont conformes au modèle ou non.
 	 * @param url URL d'où proviennent les paramètres.
-	 * @param map Valeurs des paramètres à tester.
+	 * @param parameterMap Valeurs des paramètres à tester.
+	 * @param fileMap Valeurs des fichiers à tester.
 	 * @return <code>null</code> si les paramètres sont conformes au modèle, une page HTML décrivant l'erreur sinon. sinon.
 	 */
-	public Page check(String url, Map<String, String[]> map) {
+	public Page check(String url, Map<String, String[]> parameterMap, Map<String, FilePart[]> fileMap) {
 		Set<ParameterAndOccurrence> combination = new HashSet<>();
 		Parameter parameter;
 
 		/* vérifier la validité des paramètres */
-		for (Entry<String, String[]> entry : map.entrySet()) {
+		for (Entry<String, String[]> entry : parameterMap.entrySet()) {
 			/* vérifier que le paramètre est autorisé */
 			if ((parameter = parametersByName.get(entry.getKey())) == null) {
 				return Page.unknownParameter(url, entry.getKey(), parametersByName.values().toArray(new Parameter[parametersByName.size()]));
 			}
 			/* vérifier les valeurs du paramètre */
 			for (String value : entry.getValue()) {
-				if (!parameter.check(value)) {
-					return Page.invalidParameter(url, parameter, value);
+				if ((!(parameter instanceof SimpleParameter)) || (!((SimpleParameter) parameter).check(value))) {
+					return Page.invalidParameter(url, (SimpleParameter) parameter, value);
 				}
 			}
 			/* mémoriser la présence du paramètre */
@@ -178,6 +184,19 @@ public class Checker {
 			} else {
 				combination.add(new ParameterAndOccurrence(parameter, entry.getValue().length == 1, null));
 			}
+		}
+		/* vérifier la validité des fichiers */
+		for (Entry<String, FilePart[]> entry : fileMap.entrySet()) {
+			/* vérifier que le paramètre est autorisé */
+			if ((parameter = parametersByName.get(entry.getKey())) == null) {
+				return Page.unknownParameter(url, entry.getKey(), parametersByName.values().toArray(new Parameter[parametersByName.size()]));
+			}
+			/* vérifier les valeurs du paramètre */
+			if (!(parameter instanceof FileParameter)) {
+				return Page.invalidParameter(url, (FileParameter) parameter);
+			}
+			/* mémoriser la présence du paramètre */
+			combination.add(new ParameterAndOccurrence(parameter, entry.getValue().length == 1, null));
 		}
 		/* vérifier la combinaison */
 		if (check(initialNode, combination)) {
@@ -224,6 +243,16 @@ public class Checker {
 			verified.put(node, nodeNexts);
 		}
 		return nodeNexts;
+	}
+
+
+
+	/**
+	 * Retourne un tableau des paramètres fichiers.
+	 * @return Un tableau des paramètres fichiers.
+	 */
+	public FileParameter[] getFilesParameters() {
+		return filesParameters.clone();
 	}
 
 
@@ -554,6 +583,13 @@ public class Checker {
 
 
 	/**
+	 * Paramètres fichier.
+	 */
+	private final FileParameter[] filesParameters;
+
+
+
+	/**
 	 * Noeud initial de l'automate.
 	 */
 	private final Node initialNode;
@@ -603,7 +639,7 @@ public class Checker {
 			if (vector != null) {
 				vector.add(this);
 			}
-			if ((value != null) && !parameter.check(value)) {
+			if ((value != null) && (parameter instanceof SimpleParameter) && (!((SimpleParameter) parameter).check(value))) {
 				throw new RuntimeException("La valeur \"" + value + "\" n'est pas valide pour le paramètre \"" + name + "\".");
 			}
 			this.value = value;

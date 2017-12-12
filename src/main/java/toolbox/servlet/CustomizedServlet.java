@@ -191,7 +191,7 @@ public abstract class CustomizedServlet extends HttpServlet {
 					Page.notHandledMethod(computeURL(customizedRequest), customizedRequest.getMethod(), methodsDescriptionsByMethod.keySet()).sendPage(HttpServletResponse.SC_METHOD_NOT_ALLOWED, customizedResponse);
 				} else {
 					checker = methodsDescriptionsByMethod.get(Method.valueOf(customizedRequest.getMethod())).getChecker();
-					if ((page = checker.check(computeURL(customizedRequest), customizedRequest.getParameterMap())) != null) {
+					if ((page = checker.check(computeURL(customizedRequest), customizedRequest.getParameterMap(), customizedRequest.getFileMap())) != null) {
 						LOGGER.warn("Méthode " + method + ", erreur dans les paramètres de l'URL: " + computeURL(customizedRequest));
 						page.sendPage(HttpServletResponse.SC_BAD_REQUEST, customizedResponse);
 					} else if (customizedRequest.getParameter(HELP.getName()) != null) {

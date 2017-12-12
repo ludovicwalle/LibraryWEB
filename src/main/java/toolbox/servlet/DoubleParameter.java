@@ -1,14 +1,10 @@
 package toolbox.servlet;
 
-import javax.servlet.http.*;
-
-
-
 /**
  * La classe {@link DoubleParameter} implémente la description d'un paramètre de servlet dont la valeur est un double.
  * @author Ludovic WALLE
  */
-public class DoubleParameter extends Parameter {
+public class DoubleParameter extends SimpleParameter {
 
 
 
@@ -28,7 +24,7 @@ public class DoubleParameter extends Parameter {
 	 * Ajoute les informations sur le paramètre à la page d'aide indiquée.
 	 * @param page Page d'aide à compléter.
 	 */
-	@Override public void appendHelp(Page page) {
+	@Override protected void appendHelp(Page page) {
 		page.appendItem(getName(), getDescription());
 	}
 
@@ -37,7 +33,7 @@ public class DoubleParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public void appendInvalidValue(Page page, String value) {
+	@Override protected void appendInvalidValue(Page page, String value) {
 		page.appendSection("Erreur", "La valeur \"" + CustomizedServlet.encodeForHtml(value) + "\" du paramètre \"" + getName() + "\" n'est pas un double.");
 	}
 
@@ -74,7 +70,7 @@ public class DoubleParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Double getValue(HttpServletRequest request) {
+	@Override public Double getValue(CustomizedRequest request) {
 		return (Double) super.getValue(request);
 	}
 
@@ -83,7 +79,7 @@ public class DoubleParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Double getValue(HttpServletRequest request, Object valueWhenNoParameter, Object valueWhenParameterWithoutValue) {
+	@Override public Double getValue(CustomizedRequest request, String valueWhenNoParameter, String valueWhenParameterWithoutValue) {
 		return (Double) super.getValue(request, valueWhenNoParameter, valueWhenParameterWithoutValue);
 	}
 
@@ -92,7 +88,7 @@ public class DoubleParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Double getValue(String parameterValue) {
+	@Override protected Double getValue(String parameterValue) {
 		try {
 			return (parameterValue == null) ? null : Double.parseDouble(parameterValue);
 		} catch (NumberFormatException exception) {
@@ -105,7 +101,7 @@ public class DoubleParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Double[] getValues(HttpServletRequest request) {
+	@Override public Double[] getValues(CustomizedRequest request) {
 		String[] strings;
 		Double[] doubles;
 

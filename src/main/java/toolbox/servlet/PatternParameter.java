@@ -2,15 +2,13 @@ package toolbox.servlet;
 
 import java.util.regex.*;
 
-import javax.servlet.http.*;
-
 
 
 /**
  * La classe {@link PatternParameter} implémente la description d'un paramètre de servlet dont la valeur doit respecter un modèle de syntaxe.
  * @author Ludovic WALLE
  */
-public class PatternParameter extends Parameter {
+public class PatternParameter extends SimpleParameter {
 
 
 
@@ -29,7 +27,7 @@ public class PatternParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public void appendHelp(Page page) {
+	@Override protected void appendHelp(Page page) {
 		page.appendItem(getName(), getDescription(), "La valeur doit respecter le modèle de syntaxe: " + pattern.pattern());
 	}
 
@@ -38,7 +36,7 @@ public class PatternParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public void appendInvalidValue(Page page, String value) {
+	@Override protected void appendInvalidValue(Page page, String value) {
 		page.appendSection("Erreur", "La valeur \"" + CustomizedServlet.encodeForHtml(value) + "\" du paramètre \"" + getName() + "\" ne respecte pas le modèle de syntaxe :" + pattern.pattern());
 	}
 
@@ -69,7 +67,7 @@ public class PatternParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public String getValue(HttpServletRequest request) {
+	@Override public String getValue(CustomizedRequest request) {
 		return (String) super.getValue(request);
 	}
 
@@ -78,7 +76,7 @@ public class PatternParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public String getValue(HttpServletRequest request, Object valueWhenNoParameter, Object valueWhenParameterWithoutValue) {
+	@Override public String getValue(CustomizedRequest request, String valueWhenNoParameter, String valueWhenParameterWithoutValue) {
 		return (String) super.getValue(request, valueWhenNoParameter, valueWhenParameterWithoutValue);
 	}
 
@@ -87,13 +85,23 @@ public class PatternParameter extends Parameter {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public String[] getValues(HttpServletRequest request) {
+	@Override protected String getValue(String parameterValue) {
+		return parameterValue;
+	}
+
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override public String[] getValues(CustomizedRequest request) {
 		String[] values;
 
 		if ((values = request.getParameterValues(getName())) == null) {
-			values = new String[0];
+			return Constants.NO_STRING;
+		} else {
+			return values.clone();
 		}
-		return values;
 	}
 
 
