@@ -1,14 +1,14 @@
 # LibraryWEB
 
-Cette librairie est destinÃ©e Ã  simplifier et fiabiliser l'Ã©criture et l'utilisation de servlets. Elle ne prÃ©tend pas couvrir tous les cas, mais s'appliquer Ã  la grande majoritÃ© des cas courants.
+Cette librairie est destinée à simplifier et fiabiliser l'écriture et l'utilisation de servlets. Elle ne prétend pas couvrir tous les cas, mais s'appliquer à la grande majorité des cas courants.
 
-Le point d'entrÃ©e pour l'utiliser est d'Ã©tendre la classe `CustomisedServlet` au lieu de `HttpServlet`.
+Le point d'entrée pour l'utiliser est d'étendre la classe `CustomisedServlet` au lieu de `HttpServlet`.
 
-Le constructeur de `CustomisedServlet` permet de dÃ©clarer les mÃ©thodes HTTP supportÃ©es, avec pour chacune les paramÃ¨tres et les combinaisons autorisÃ©es, et pour chaque paramÃ¨tre les valeurs autorisÃ©es (typage, modÃ¨le de syntaxe, Ã©numÃ©ration de valeur, ...). Chaque paramÃ¨tre est spÃ©cifiÃ© par une variable `*Parameter`. Un paramÃ¨tre implicite `Help` permet d'afficher une aide sur l'utilisation de la servlet. Un controle de conformitÃ© des paramÃ¨tres par rapport Ã  cette description est automatiquement rÃ©alisÃ©, et une page d'erreur est gÃ©nÃ©rÃ©e en cas de non conformitÃ©, avant mÃªme d'arriver dans la classe implÃ©mentant la servlet.
+Le constructeur de `CustomisedServlet` permet de déclarer les méthodes HTTP supportées, avec pour chacune les paramètres et les combinaisons autorisées, et pour chaque paramètre les valeurs autorisées (typage, modèle de syntaxe, énumération de valeur, ...). Chaque paramètre est spécifié par une variable `*Parameter`. Un paramètre implicite `Help` permet d'afficher une aide sur l'utilisation de la servlet. Un controle de conformité des paramètres par rapport à cette description est automatiquement réalisé, et une page d'erreur est générée en cas de non conformité, avant même d'arriver dans la classe implémentant la servlet.
 
-Acessoirement, elle permet de rÃ©cupÃ©rer facilement les fichiers des requÃ¨tes multipart, si ils ne sont pas imbriquÃ©s.
+Acessoirement, elle permet de récupérer facilement les fichiers des requètes multipart, si ils ne sont pas imbriqués.
 
-D'autres mÃ©thodes d'un intÃ©ret plus modeste sont aussi disponibles.
+D'autres méthodes d'un intéret plus modeste sont aussi disponibles.
 
 	public MaServlet(Family family, String url) {
 		super("Description de la servlet", //
@@ -16,124 +16,124 @@ D'autres mÃ©thodes d'un intÃ©ret plus modeste sont aussi disponibles.
 		    new MethodDescription(new Method[]{Method.POST}, "Modifie la DataSource Kendo.", xor(xor(is(OPTION_PARAMETER, OPTION_PARAMETER$KENDO), and(is(OPTION_PARAMETER, OPTION_PARAMETER$IDS), FIELD, zeroOrOne(FILTER)), zeroOrOne(and(is(OPTION_PARAMETER, OPTION_PARAMETER$IDENTITY, OPTION_PARAMETER$FIELDS, OPTION_PARAMETER$TABLE, OPTION_PARAMETER$ALL), zeroOrOne(FILTER), zeroOrOne(SORT), xor(and(zeroOrOne(TAKE), zeroOrOne(SKIP)), ID), zeroOrOne(PREVIOUS), zeroOrOne(NEXTS), zeroOrOne(PARENTS), zeroOrOne(CHILDREN), zeroOrOne(HIERARCHY)))), and(is(ACTION, ACTION$DELETE), ID), and(is(ACTION, ACTION$INSERT, ACTION$UPDATE), DATA)), ACTION, ID, DATA, OPTION_PARAMETER, FIELD, FILTER, SORT, TAKE, SKIP, PREVIOUS, NEXTS, PARENTS, CHILDREN, HIERARCHY));
 	}
 	/**
-	 * ParamÃ¨tre pour indiquer l'action Ã  effectuer.
+	 * Paramètre pour indiquer l'action à effectuer.
 	 */
-	public static final ListParameter ACTION = new ListParameter("Action", "Action Ã  rÃ©aliser (fait la mÃªme chose qu'un GET mais en s'affranchissant de la limite de taille d'URL si aucune action n'est prÃ©cisÃ©e). ", //
+	public static final ListParameter ACTION = new ListParameter("Action", "Action à réaliser (fait la même chose qu'un GET mais en s'affranchissant de la limite de taille d'URL si aucune action n'est précisée). ", //
 	    ACTION$DELETE = new ValueAndLabel("Delete", "Supprime une ligne."), //
-	    ACTION$INSERT = new ValueAndLabel("Insert", "InsÃ¨re une ligne."), //
+	    ACTION$INSERT = new ValueAndLabel("Insert", "Insère une ligne."), //
 	    ACTION$UPDATE = new ValueAndLabel("Update", "Modifie une ligne."));
 
 
 
 	/**
-	 * Valeur du paramÃ¨tre {@link #ACTION}: Supprime la ligne dont l'identifiant est indiquÃ©.
+	 * Valeur du paramètre {@link #ACTION}: Supprime la ligne dont l'identifiant est indiqué.
 	 */
 	public static final ValueAndLabel ACTION$DELETE;
 
 
 
 	/**
-	 * Valeur du paramÃ¨tre {@link #ACTION}: InsÃ¨re une nouvelle ligne contenant les informations indiquÃ©es.
+	 * Valeur du paramètre {@link #ACTION}: Insère une nouvelle ligne contenant les informations indiquées.
 	 */
 	public static final ValueAndLabel ACTION$INSERT;
 
 
 
 	/**
-	 * Valeur du paramÃ¨tre {@link #ACTION}: Modifie la ligne dont l'identifiant est indiquÃ© en les remplaÃ§ant ses informations par celles indiquÃ©es.
+	 * Valeur du paramètre {@link #ACTION}: Modifie la ligne dont l'identifiant est indiqué en les remplaçant ses informations par celles indiquées.
 	 */
 	public static final ValueAndLabel ACTION$UPDATE;
 
 
 
 	/**
-	 * ParamÃ¨tre pour le nombre de niveaux hiÃ©rarchiques ascendants Ã  sÃ©lectionner.
+	 * Paramètre pour le nombre de niveaux hiérarchiques ascendants à sélectionner.
 	 */
-	public static final IntegerParameter CHILDREN = new IntegerParameter("Children", "Nombre de niveaux hiÃ©rarchiques descendants Ã  sÃ©lectionner (aucun si le paramÃ¨tre est omis, tous si il est spÃ©cifiÃ© mais sans valeur).", true, 0, Hardcoded.MAX_ID);
+	public static final IntegerParameter CHILDREN = new IntegerParameter("Children", "Nombre de niveaux hiérarchiques descendants à sélectionner (aucun si le paramètre est omis, tous si il est spécifié mais sans valeur).", true, 0, Hardcoded.MAX_ID);
 
 
 
 	/**
-	 * ParamÃ¨tre pour les donnÃ©es de la table, en format Json.
+	 * Paramètre pour les données de la table, en format Json.
 	 */
-	public static final TextParameter DATA = new TextParameter("Data", "DonnÃ©es de la table, en format Json.");
+	public static final TextParameter DATA = new TextParameter("Data", "Données de la table, en format Json.");
 
 
 
 	/**
-	 * ParamÃ¨tre pour le nom du champ contenant le lien.
+	 * Paramètre pour le nom du champ contenant le lien.
 	 */
 	public static final TextParameter FIELD = new TextParameter("Field", "Nom du champ contenant le lien.");
 
 
 
 	/**
-	 * ParamÃ¨tre pour le nombre de lignes Ã  retourner.
+	 * Paramètre pour le nombre de lignes à retourner.
 	 */
 	public static final TextParameter FILTER = new TextParameter("Filter", "Informations de filtrage, en format Json.");
 
 
 
 	/**
-	 * ParamÃ¨tre pour le nom de la hiÃ©rarchie Ã  retourner.
+	 * Paramètre pour le nom de la hiérarchie à retourner.
 	 */
-	public static final TextParameter HIERARCHY = new TextParameter("Hierarchy", "Nom de hiÃ©rarchie.");
+	public static final TextParameter HIERARCHY = new TextParameter("Hierarchy", "Nom de hiérarchie.");
 
 
 
 	/**
-	 * ParamÃ¨tre pour l'identifiant.
+	 * Paramètre pour l'identifiant.
 	 */
 	public static final IntegerParameter ID = new IntegerParameter("Id", "Identifiant.", false, 0, Hardcoded.MAX_ID);
 
 
 
 	/**
-	 * ParamÃ¨tre pour le nombre d'identifiants suivants Ã  sÃ©lectionner.
+	 * Paramètre pour le nombre d'identifiants suivants à sélectionner.
 	 */
-	public static final IntegerParameter NEXTS = new IntegerParameter("Nexts", "Nombre d'identifiants suivants Ã  sÃ©lectionner, dans l'ordre, en partant de l'Ã©lÃ©ment courant (aucun si le paramÃ¨tre est omis).", false, 0, Hardcoded.MAX_ID);
+	public static final IntegerParameter NEXTS = new IntegerParameter("Nexts", "Nombre d'identifiants suivants à sélectionner, dans l'ordre, en partant de l'élément courant (aucun si le paramètre est omis).", false, 0, Hardcoded.MAX_ID);
 
 
 
 	/**
-	 * ParamÃ¨tre pour le nombre de niveaux hiÃ©rarchiques ascendants Ã  sÃ©lectionner.
+	 * Paramètre pour le nombre de niveaux hiérarchiques ascendants à sélectionner.
 	 */
-	public static final IntegerParameter PARENTS = new IntegerParameter("Parents", "Nombre de niveaux hiÃ©rarchiques ascendants Ã  sÃ©lectionner (aucun si le paramÃ¨tre est omis, tous si il est spÃ©cifiÃ© mais sans valeur).", true, 0, Hardcoded.MAX_ID);
+	public static final IntegerParameter PARENTS = new IntegerParameter("Parents", "Nombre de niveaux hiérarchiques ascendants à sélectionner (aucun si le paramètre est omis, tous si il est spécifié mais sans valeur).", true, 0, Hardcoded.MAX_ID);
 
 
 
 	/**
-	 * ParamÃ¨tre pour le nombre d'identifiants prÃ©cÃ©dents Ã  sÃ©lectionner.
+	 * Paramètre pour le nombre d'identifiants précédents à sélectionner.
 	 */
-	public static final IntegerParameter PREVIOUS = new IntegerParameter("Previous", "Nombre d'identifiants prÃ©cÃ©dents Ã  sÃ©lectionner, dans l'ordre, en partant de l'Ã©lÃ©ment courant (aucun si le paramÃ¨tre est omis).", false, 0, Hardcoded.MAX_ID);
+	public static final IntegerParameter PREVIOUS = new IntegerParameter("Previous", "Nombre d'identifiants précédents à sélectionner, dans l'ordre, en partant de l'élément courant (aucun si le paramètre est omis).", false, 0, Hardcoded.MAX_ID);
 
 
 
 	/**
-	 * ParamÃ¨tre pour le nombre de lignes Ã  passer.
+	 * Paramètre pour le nombre de lignes à passer.
 	 */
-	public static final IntegerParameter SKIP = new IntegerParameter("Skip", "Pagination: nombre de lignes Ã  ignorer (aucune si le paramÃ¨tre est omis).", false, 0, Hardcoded.MAX_ID);
+	public static final IntegerParameter SKIP = new IntegerParameter("Skip", "Pagination: nombre de lignes à ignorer (aucune si le paramètre est omis).", false, 0, Hardcoded.MAX_ID);
 
 
 
 	/**
-	 * ParamÃ¨tre pour les informations de tri.
+	 * Paramètre pour les informations de tri.
 	 */
 	public static final TextParameter SORT = new TextParameter("Sort", "Informations de tri, en format Json.");
 
 
 
 	/**
-	 * ParamÃ¨tre pour le nombre de lignes Ã  retourner.
+	 * Paramètre pour le nombre de lignes à retourner.
 	 */
-	public static final IntegerParameter TAKE = new IntegerParameter("Take", "Pagination: nombre de lignes Ã  retourner (toutes si le paramÃ¨tre est omis).", false, 0, Hardcoded.MAX_ID);
+	public static final IntegerParameter TAKE = new IntegerParameter("Take", "Pagination: nombre de lignes à retourner (toutes si le paramètre est omis).", false, 0, Hardcoded.MAX_ID);
 
 
 
 	/**
-	 * ParamÃ¨tre pour indiquer quelles informations retourner.
+	 * Paramètre pour indiquer quelles informations retourner.
 	 */
-	public static final ListParameter OPTION_PARAMETER = new ListParameter("OPTION", "Informations Ã  retourner.", //
+	public static final ListParameter OPTION_PARAMETER = new ListParameter("OPTION", "Informations à retourner.", //
 	    OPTION_PARAMETER$O1 = new ValueAndLabel("O1", "Option 1."), //
 	    OPTION_PARAMETER$O2 = new ValueAndLabel("O2", "Option 2."), //
 	    OPTION_PARAMETER$O3 = new ValueAndLabel("O3", "Option 3."));
@@ -141,42 +141,41 @@ D'autres mÃ©thodes d'un intÃ©ret plus modeste sont aussi disponibles.
 
 
 	/**
-	 * Valeur du paramÃ¨tre {@link #OPTION_PARAMETER}: Bundle en base et tous les liens.
+	 * Valeur du paramètre {@link #OPTION_PARAMETER}: Bundle en base et tous les liens.
 	 */
 	public static final ValueAndLabel OPTION_PARAMETER$ALL;
 
 
 
 	/**
-	 * Valeur du paramÃ¨tre {@link #OPTION_PARAMETER}: Bundle en base uniquement.
+	 * Valeur du paramètre {@link #OPTION_PARAMETER}: Bundle en base uniquement.
 	 */
 	public static final ValueAndLabel OPTION_PARAMETER$FIELDS;
 
 
 
 	/**
-	 * Valeur du paramÃ¨tre {@link #OPTION_PARAMETER}: Informations d'identitÃ© (identifiant et label).
+	 * Valeur du paramètre {@link #OPTION_PARAMETER}: Informations d'identité (identifiant et label).
 	 */
 	public static final ValueAndLabel OPTION_PARAMETER$IDENTITY;
 
 
 
 	/**
-	 * Valeur du paramÃ¨tre {@link #OPTION_PARAMETER}: Identifiants d'objets liÃ©s dÃ©doublonnÃ©s.
+	 * Valeur du paramètre {@link #OPTION_PARAMETER}: Identifiants d'objets liés dédoublonnés.
 	 */
 	public static final ValueAndLabel OPTION_PARAMETER$IDS;
 
 
 
 	/**
-	 * Valeur du paramÃ¨tre {@link #OPTION_PARAMETER}: Fragment JavaScript pour crÃ©er les objets Kendo correspondants Ã  la famille (DataSource, Model, ...).
+	 * Valeur du paramètre {@link #OPTION_PARAMETER}: Fragment JavaScript pour créer les objets Kendo correspondants à la famille (DataSource, Model, ...).
 	 */
 	public static final ValueAndLabel OPTION_PARAMETER$KENDO;
 
 
 
 	/**
-	 * Valeur du paramÃ¨tre {@link #OPTION_PARAMETER}: Bundle en base et liens affichables en mode table.
+	 * Valeur du paramètre {@link #OPTION_PARAMETER}: Bundle en base et liens affichables en mode table.
 	 */
 	public static final ValueAndLabel OPTION_PARAMETER$TABLE;
-	
